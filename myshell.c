@@ -89,8 +89,10 @@ char **shell_parse_line(*char line) {
 		return EXIT_FAILURE;
 	}
 
+	// Returns pointer to the first token
 	token = strtok(line, PARSE_SPACES);
 
+	// While loop continues as long as strtok (at the end of the previous loop) returns a non-NULL value
 	while(token != NULL) {
 		tokens[index] = token;
 		index++;
