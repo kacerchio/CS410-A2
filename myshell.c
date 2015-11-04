@@ -77,27 +77,36 @@ char *read_line(void) {
 	}
 }
 
-// count delimiters
-// reallocate space for tokenized line
-// insert spaces before and after delimiters 
-
 char **shell_parse_line(*char line) {
 
 	int bufsize = PARSE_TOKENS_BUF_SIZE;
-	char **buffer = malloc(sizeof(char *) * bufsize);
+	char **tokens = malloc(sizeof(char *) * bufsize);
 	int index = 0;
 	char *token;
 
-	if (!buffer) {
-		fprintf(stderr, "myshell: buffer allocation failed\n");
+	if (!tokens) {
+		fprintf(stderr, "myshell: memory allocation failed\n");
 		return EXIT_FAILURE;
 	}
 
 	token = strtok(line, PARSE_SPACES);
 
 	while(token != NULL) {
-		
+		tokens[index] = token;
+		index++;
+
+		if(index >= bufsize) {
+			bufsize += PARSE_TOKENS_BUF_SIZE;
+			tokens = realloc(tokens, bufsize * sizeof(char*));
+			if (!tokens) {
+				fprintf(stderr, "myshell: memory reallocation failed\n");
+				return EXIT_FAILURE;
+			}
+		}
+		token = strtok(NULL, PARSE_SPACES);
 	}
+	tokens[index] = NULL;
+	return tokens;
 }
 
 
