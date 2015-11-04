@@ -84,6 +84,7 @@ char **shell_parse_line(*char line) {
 	int index = 0;
 	char *token;
 
+	// If index exceeds the buffer size, reallocate memory
 	if (!tokens) {
 		fprintf(stderr, "myshell: memory allocation failed\n");
 		return EXIT_FAILURE;
@@ -94,12 +95,13 @@ char **shell_parse_line(*char line) {
 
 	// While loop continues as long as strtok (at the end of the previous loop) returns a non-NULL value
 	while(token != NULL) {
-		tokens[index] = token;
-		index++;
+		tokens[index] = token;		// Store token into first index of tokens
+		index++;					// Increment index
 
 		if(index >= bufsize) {
 			bufsize += PARSE_TOKENS_BUF_SIZE;
 			tokens = realloc(tokens, bufsize * sizeof(char*));
+			// If index exceeds the buffer size, reallocate memory
 			if (!tokens) {
 				fprintf(stderr, "myshell: memory reallocation failed\n");
 				return EXIT_FAILURE;
@@ -107,6 +109,7 @@ char **shell_parse_line(*char line) {
 		}
 		token = strtok(NULL, PARSE_SPACES);
 	}
+	// Set last indexed position to NULL 
 	tokens[index] = NULL;
 	return tokens;
 }
