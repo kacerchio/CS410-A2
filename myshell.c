@@ -9,7 +9,11 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
+
 #include <signal.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #define MAX_LINE 100
 #define PARSE_TOKENS_BUF_SIZE 64
@@ -119,7 +123,39 @@ int myshell_launch(char **args, int numArg) {
         }
     }
     
+    int allfds[2 * numSpecialChars];                // There should be 2 file descriptors for every special character
     
+    for (int i = 0; i < numSpecialChars; i++) {
+        
+        // Checks for file redirection operators and performs the appropriate redirection
+        if (isFileOperator(specialChars[i])) {
+            
+            if ((strcmp(specialChars[i], ">") == 0) || (strcmp(specialChars[i], "1>")) || (strcmp(specialChars[i], "2>"))) {
+                allfds[i * 2] = open(args[cmdStarts[i + 1]], O_WRONLY | O_CREAT, S_IRWXO | S_IRWXG | S_IRWXU);
+            }
+            else if ((strcmp(specialChars[i], "&>")) == 0) {
+                allfds[i * 2] = open(args[cmdStarts[i + 1]], O_WRONLY | O_APPEND | O_CREAT, S_IRWXO | S_IRWXG | S_IRWXU);
+            }
+            else if ((strcmp(specialChars[i], "<")) == 0) {
+                allfds[i * 2] = open(args[cmdStarts[i + 1]], O_RDONLY);
+            }
+            
+            cmdStarts[i + 1] = -1;
+            allfds[i * 2 + 1] = -1;
+            
+            // Return an error if opening file fails
+            if (allfds[i * 2] < 0) {
+                fprintf(stderr, "myshell: file could not be opened\n");
+                exit(EXIT_FAILURE);
+            }
+            // Return an error if opening pipe fails
+            if (pipe(allfds + i * 2) < 0) {
+                fprintf(stderr, "myshell: pipe could not be opened\n");
+                exit(EXIT_FAILURE);
+            }
+                                                                                                            
+        }
+    }
     
     return 0;
 }
@@ -154,4 +190,5 @@ int main(void) {
     }
     return 0;
 }
+
 
