@@ -123,37 +123,96 @@ int myshell_launch(char **args, int numArg) {
         }
     }
     
-    int allfds[2 * numSpecialChars];                // There should be 2 file descriptors for every special character
+    int fds[2 * numSpecialChars];                   // There should be 2 file descriptors for every special character
     
     for (int i = 0; i < numSpecialChars; i++) {
         
-        // Checks for file redirection operators and performs the appropriate redirection
+        // Checks for file redirection operators
         if (isFileOperator(specialChars[i])) {
             
+            // Opens a new file and obtains its file descriptor
             if ((strcmp(specialChars[i], ">") == 0) || (strcmp(specialChars[i], "1>")) || (strcmp(specialChars[i], "2>"))) {
-                allfds[i * 2] = open(args[cmdStarts[i + 1]], O_WRONLY | O_CREAT, S_IRWXO | S_IRWXG | S_IRWXU);
+                fds[i * 2] = open(args[cmdStarts[i + 1]], O_WRONLY | O_CREAT, S_IRWXO | S_IRWXG | S_IRWXU);
             }
             else if ((strcmp(specialChars[i], "&>")) == 0) {
-                allfds[i * 2] = open(args[cmdStarts[i + 1]], O_WRONLY | O_APPEND | O_CREAT, S_IRWXO | S_IRWXG | S_IRWXU);
+                fds[i * 2] = open(args[cmdStarts[i + 1]], O_WRONLY | O_APPEND | O_CREAT, S_IRWXO | S_IRWXG | S_IRWXU);
             }
             else if ((strcmp(specialChars[i], "<")) == 0) {
-                allfds[i * 2] = open(args[cmdStarts[i + 1]], O_RDONLY);
+                fds[i * 2] = open(args[cmdStarts[i + 1]], O_RDONLY);
             }
             
             cmdStarts[i + 1] = -1;
-            allfds[i * 2 + 1] = -1;
+            fds[i * 2 + 1] = -1;
             
             // Return an error if opening file fails
-            if (allfds[i * 2] < 0) {
+            if (fds[i * 2] < 0) {
                 fprintf(stderr, "myshell: file could not be opened\n");
                 exit(EXIT_FAILURE);
             }
             // Return an error if opening pipe fails
-            if (pipe(allfds + i * 2) < 0) {
+            if (pipe(fds + i * 2) < 0) {
                 fprintf(stderr, "myshell: pipe could not be opened\n");
                 exit(EXIT_FAILURE);
             }
                                                                                                             
+        }
+    }
+    
+    pid_t pid;                              // Initialize pid variable of pid_t data type (will represent a process ID)
+    int currentCmd;
+    
+    for (int i = 0, j = 0; i < cmds; ++i) {
+        
+        currentCmd = cmdStarts[i];          // Grab a command start index and assign it to 'currentCmd'
+        
+        // Jump back to top of for loop if current command index is not valid
+        if (currentCmd < 0) {
+            continue;
+        }
+        
+        // Assign return value of fork() to pid
+        pid = fork();
+        
+        // If call to fork() returns a 0 to the newly created child process, handle file descriptors accordingly
+        if (pid == 0) {
+            
+            signal(SIGINT, sigint_handler);
+            
+            if (i > 0 && (strcmp(specialChars[i - 1], "|") == 0)) {
+                if (dup2(fds[j - 2], 0) < 0) {
+                    fprintf(stderr, "myshell: file descriptor could not be duplicated\n");
+                    exit(EXIT_FAILURE);
+                }
+            }
+            
+            if (i < numSpecialChars) {
+                if (((strcmp(specialChars[i], ">") == 0) || (strcmp(specialChars[i], "1>") == 0)) && (dup2(fds[j], 1) < 0)) {
+                    fprintf(stderr, "myshell: file descriptor could not be duplicated\n");
+                    exit(EXIT_FAILURE);
+                }
+                else if ((strcmp(specialChars[i], "2>")) == 0) {
+                    dup2(fds[j], 2);
+                }
+                else if ((strcmp(specialChars[i], "&>")) == 0) {
+                    // Redirect both stdout and stderr
+                    dup2(fds[j], 1);
+                    dup2(fds[j], 2);
+                }
+                else if ((strcmp(specialChars[i], "<")) == 0) {
+                    dup2(fds[j], 0);
+                    if ((i + 1 < numSpecialChars) && (strcmp(specialChars[i + 1], ">")) == 0) {
+                        dup2(fds[j + 2], 1);
+                    }
+                }
+                else if ((strcmp(specialChars[i], "|")) == 0) {
+                    if(dup2(fds[j + 1], 1) < 0){
+                        fprintf(stderr, "myshell: file descriptor could not be duplicated\n");
+                        exit(EXIT_FAILURE);
+                    }
+                }
+            }
+            
+            /******** This is where I left off ********/
         }
     }
     
