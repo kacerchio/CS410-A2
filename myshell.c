@@ -101,7 +101,7 @@ int myshell_launch(char **args, int numArg) {
     // Check if command is followed by an ampersand
     if (strcmp(args[numArg] - 1, "&") == 0) {
         waitForChildren = 0;                        // Sets waitForChildren to 'false'
-        args[numArg - 1] = NULL;                    // ??? WHy do we set this to NULL ???
+        args[numArg - 1] = NULL;
         numArg = numArg - 1;                        // Decrement 'numArg'
     }
     
@@ -279,6 +279,13 @@ int main(void) {
         char cmd[MAX_LINE];
         fgets(cmd, MAX_LINE, stdin);						// Stores the first 100 characters of the command into 'cmd'
         int numArgs = myshell_parse_line(args, cmd);		// Parses inputted line and returns number of arguments
+        
+        // Executes a sequence of two commands one after the other if semicolon is used
+        if ((strcmp(args[1], ";")) == 0) {
+            myshell_launch(&args[0], 1);
+            myshell_launch(&args[2], 1);
+            return 0;
+        }
         
         myshell_launch(args, numArgs);						// Launches shell and executes given arguments
     }
