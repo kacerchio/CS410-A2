@@ -11,7 +11,7 @@
 
 #define MAX_ROW 12
 
-// Calculates all paths given a starting node and destination node
+// Calculates all paths given a starting node and its adjacent nodes
 void allPaths(int start, int des[], int x, int m[x][x], int visited[], int path[], int currentIndex) {
     
     for (int i = 0; i < x; i++) {
