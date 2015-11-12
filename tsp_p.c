@@ -34,23 +34,32 @@ void allPaths(int start, int des, int x, int m[x][x], int visited[], int path[],
     visited[start] = 1;
     path[currentIndex] = start;
     currentIndex++;
-    //printf("start = %d \n", start);
     
     if (start == des) {
-        //printf("reached base case\n");
+        printf("reached base case\n");
         for (int i = 0; i < currentIndex; i++) {
             printf("%d ", path[i]);
         }
         printf("\n");
     }
     else {
-        int *adjNodes = adjacent(j, x, m);
-        for (int j = 0; j < sizeof(ptr); j++) {
-            if (!visited[j]) {
-                int *adjNodes = adjacent(j, x, m);
-                allPaths(des[j], adjNodes, x, m, visited, path, currentIndex);
+        printf("entered else statement\n");
+        int *adjNodes = adjacent(start, x, m);
+        int *ptr = adjNodes;
+        for (int i = 0; i < (sizeof(ptr) / sizeof(int)); i++) {
+            printf("landed before if statement\n");
+            if (visited[adjNodes[i]] != 1) {
+                allPaths(adjNodes[i], des, x, m, visited, path, currentIndex);
             }
         }
+        /*
+        for (int i = adjNodes[0]; i != sizeof(ptr) / sizeof(int); i++) {
+            printf("adjNodes[0] = %d", adjNodes[0]);
+            if (!visited[i]) {
+                allPaths(i, des, x, m, visited, path, currentIndex);
+            }
+        }
+         */
     }
     
     currentIndex--;
@@ -118,6 +127,7 @@ int main(void) {
     
     printf("\n");
     
+    /*
     for (int city = 0; city < numCities; city++) {
         
         int *adjNodes = adjacent(city, numCities, m);
@@ -134,6 +144,11 @@ int main(void) {
 
         allPaths(city, adjNodes, numCities, m, visited, path, 0);
     }
+     */
+    
+    int path[MAX_ROW];
+    int visited[numCities];
+    allPaths(0, 2, numCities, m, visited, path, 0);
     
     return 0;
 }
