@@ -14,8 +14,8 @@
 /* Returns array of adjacent nodes to given city */
 int * adjacent(int start, int size, int m[size][size]) {
     
-    int *adjNodes = malloc(sizeof(int) * (size - 1));     // Allocate memory for adjNodes
-    int count = 0;                                      // Will keep track of index for adjNodes
+    int *adjNodes = malloc(sizeof(int) * (size - 1));       // Allocate memory for adjNodes
+    int count = 0;                                          // Will keep track of index for adjNodes
     
     // Searches down a column in the input graph for valid distances
     // and stores the node in adjNodes if valid
@@ -28,7 +28,19 @@ int * adjacent(int start, int size, int m[size][size]) {
     return adjNodes;
 }
 
-/* Calculates all paths given a starting node and its adjacent nodes */
+/* Calculates total distance of a given traveled path */
+int calcDistance(int path[], int currentIndex, int x, int m[x][x]) {
+    printf("\tcurrentIndex = %d", currentIndex);
+    int sumDist = m[path[0]][path[1]];
+    if (currentIndex > 2) {
+        for (int i = 2; i < currentIndex; i++) {
+            sumDist = sumDist + m[path[i - 1]][path[i]];
+        }
+    }
+    return sumDist + m[path[currentIndex - 1]][path[0]];
+}
+
+/* Calculates all valid paths given a starting node and its adjacent nodes */
 void allPaths(int start, int des, int x, int m[x][x], int visited[], int path[], int currentIndex) {
     
     visited[start] = 1;
@@ -40,6 +52,8 @@ void allPaths(int start, int des, int x, int m[x][x], int visited[], int path[],
             printf("%d ", path[i]);
         }
         printf("%d", path[0]);
+        int sumDist = calcDistance(path, currentIndex, x, m);
+        printf("\t\t total distance: %d", sumDist);
         printf("\n");
     }
     else {
@@ -125,28 +139,16 @@ int main(void) {
     
     printf("\n");
     
-    /*
+    printf("All possible paths for this input graph: \n");
     for (int city = 0; city < numCities; city++) {
-        
-        int *adjNodes = adjacent(city, numCities, m);
-        for (int l = 0; l < numCities - 1; l++) {
-            printf("adjNodes = %d ", adjNodes[l]);
+        for (int des = 0; des < numCities; des++) {
+            int path[MAX_ROW];
+            int visited[numCities];
+            if (des != city) {
+                allPaths(city, des, numCities, m, visited, path, 0);
+            }
         }
-        printf("\n");
-        int path[MAX_ROW];
-        int visited[numCities];
-        
-        if (adjNodes[city] == 0) {
-            break;
-        }
-
-        allPaths(city, adjNodes, numCities, m, visited, path, 0);
     }
-     */
-    
-    int path[MAX_ROW];
-    int visited[numCities];
-    allPaths(0, 2, numCities, m, visited, path, 0);
     
     return 0;
 }
