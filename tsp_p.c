@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #define MAX_ROW 12
 
@@ -30,7 +31,6 @@ int * adjacent(int start, int size, int m[size][size]) {
 
 /* Calculates total distance of a given traveled path */
 int calcDistance(int path[], int currentIndex, int x, int m[x][x]) {
-    printf("\tcurrentIndex = %d", currentIndex);
     int sumDist = m[path[0]][path[1]];
     if (currentIndex > 2) {
         for (int i = 2; i < currentIndex; i++) {
@@ -64,14 +64,6 @@ void allPaths(int start, int des, int x, int m[x][x], int visited[], int path[],
                 allPaths(adjNodes[i], des, x, m, visited, path, currentIndex);
             }
         }
-        /*
-        for (int i = adjNodes[0]; i != sizeof(ptr) / sizeof(int); i++) {
-            printf("adjNodes[0] = %d", adjNodes[0]);
-            if (!visited[i]) {
-                allPaths(i, des, x, m, visited, path, currentIndex);
-            }
-        }
-         */
     }
     
     currentIndex--;
@@ -91,7 +83,7 @@ int main(void) {
     else {
         // Exit if numCities is not a valid int or between and including 2 and 10
         printf("tsp_p: Number of cities must be a valid integer and within the bounds of 2 and 10\n\n");
-        exit(0);
+        exit(1);
     }
     
     int m[numCities][numCities];      // Max size of input graph is 10
@@ -110,7 +102,7 @@ int main(void) {
     while (k < numCities) {
         if (m[k][k] != 0) {
             printf("\ntsp_p: The diagonal of the input graph must have distance of 0 \n\n");
-            exit(0);
+            exit(1);
         }
         else {
             k++;
@@ -123,7 +115,7 @@ int main(void) {
             if (m[i][j] > 255) {
                 printf("\ntsp_p: The maximum distance between two cities is 255... ");
                 printf("invalid distance found at m[%d][%d] (= %d). \n\n", i, j, m[i][j]);
-                exit(0);
+                exit(1);
             }
         }
     }
@@ -138,18 +130,30 @@ int main(void) {
     }
     
     printf("\n");
-    
     printf("All possible paths for this input graph: \n");
+    
+    int status = 0;
     for (int city = 0; city < numCities; city++) {
-        for (int des = 0; des < numCities; des++) {
-            int path[MAX_ROW];
-            int visited[numCities];
-            if (des != city) {
-                allPaths(city, des, numCities, m, visited, path, 0);
+        pid_t pid = fork();
+        if (pid == -1) {
+            fprintf(stderr, "tsp_p: fork failed\n");
+            exit(1);
+        }
+        else if (pid == 0) {
+            for (int des = 0; des < numCities; des++) {
+                int path[MAX_ROW];
+                int visited[numCities];
+                if (des != city) {
+                    allPaths(city, des, numCities, m, visited, path, 0);
+                }
             }
+            exit(0);
+        }
+        else {
+            wait(&status);
         }
     }
-    
+
     return 0;
 }
 
