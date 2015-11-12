@@ -11,42 +11,11 @@
 
 #define MAX_ROW 12
 
-// Calculates all paths given a starting node and its adjacent nodes
-void allPaths(int start, int des[], int x, int m[x][x], int visited[], int path[], int currentIndex) {
-    
-    for (int i = 0; i < x; i++) {
-        
-        visited[start] = 1;
-        path[currentIndex] = start;
-        currentIndex++;
-        printf("start = %d \n", start);
-    
-        if (start == des[i]) {
-            printf("reached base case\n");
-            for (int i = 0; i < currentIndex; i++) {
-                printf("%d ", path[i]);
-            }
-            printf("%d", start);
-        }
-        else {
-            for (int adj = 0; adj < currentIndex; adj++) {
-                if ((m[start][adj] > 0) && (!visited[adj])) {
-                    printf("reached recursive call\n");
-                    allPaths(adj, des, x, m, visited, path, currentIndex);
-                }
-            }
-        }
-    
-        currentIndex--;
-        visited[start] = 0;
-    }
-}
-
-// Returns array of adjacent nodes to given city
+/* Returns array of adjacent nodes to given city */
 int * adjacent(int start, int size, int m[size][size]) {
     
-    int *adjNodes = malloc(sizeof(int) * size);     // Allocate memory for adjNodes
-    int count = 0;                                  // Will keep track of index for adjNodes
+    int *adjNodes = malloc(sizeof(int) * (size - 1));     // Allocate memory for adjNodes
+    int count = 0;                                      // Will keep track of index for adjNodes
     
     // Searches down a column in the input graph for valid distances
     // and stores the node in adjNodes if valid
@@ -59,6 +28,34 @@ int * adjacent(int start, int size, int m[size][size]) {
     return adjNodes;
 }
 
+/* Calculates all paths given a starting node and its adjacent nodes */
+void allPaths(int start, int des, int x, int m[x][x], int visited[], int path[], int currentIndex) {
+    
+    visited[start] = 1;
+    path[currentIndex] = start;
+    currentIndex++;
+    //printf("start = %d \n", start);
+    
+    if (start == des) {
+        //printf("reached base case\n");
+        for (int i = 0; i < currentIndex; i++) {
+            printf("%d ", path[i]);
+        }
+        printf("\n");
+    }
+    else {
+        int *adjNodes = adjacent(j, x, m);
+        for (int j = 0; j < sizeof(ptr); j++) {
+            if (!visited[j]) {
+                int *adjNodes = adjacent(j, x, m);
+                allPaths(des[j], adjNodes, x, m, visited, path, currentIndex);
+            }
+        }
+    }
+    
+    currentIndex--;
+    visited[start] = 0;
+}
 
 int main(void) {
     
@@ -124,6 +121,10 @@ int main(void) {
     for (int city = 0; city < numCities; city++) {
         
         int *adjNodes = adjacent(city, numCities, m);
+        for (int l = 0; l < numCities - 1; l++) {
+            printf("adjNodes = %d ", adjNodes[l]);
+        }
+        printf("\n");
         int path[MAX_ROW];
         int visited[numCities];
         
