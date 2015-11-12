@@ -36,18 +36,16 @@ void allPaths(int start, int des, int x, int m[x][x], int visited[], int path[],
     currentIndex++;
     
     if (start == des) {
-        printf("reached base case\n");
         for (int i = 0; i < currentIndex; i++) {
             printf("%d ", path[i]);
         }
+        printf("%d", path[0]);
         printf("\n");
     }
     else {
-        printf("entered else statement\n");
         int *adjNodes = adjacent(start, x, m);
         int *ptr = adjNodes;
         for (int i = 0; i < (sizeof(ptr) / sizeof(int)); i++) {
-            printf("landed before if statement\n");
             if (visited[adjNodes[i]] != 1) {
                 allPaths(adjNodes[i], des, x, m, visited, path, currentIndex);
             }
