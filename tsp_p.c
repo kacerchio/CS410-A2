@@ -11,7 +11,7 @@
 
 #define MAX_ROW 12
 
-// Calculates all paths given a starting node
+// Calculates all paths given a starting node and destination node
 void allPaths(int start, int des, int x, int m[x][x], int visited[], int path[], int currentIndex) {
  
     visited[start] = 1;
@@ -19,11 +19,12 @@ void allPaths(int start, int des, int x, int m[x][x], int visited[], int path[],
     currentIndex++;
     printf("start = %d \n", start);
     
-    if ((start == des) && currentIndex != 1) {
+    if (start == des) {
         printf("reached base case\n");
         for (int i = 0; i < currentIndex; i++) {
             printf("%d ", path[i]);
         }
+        printf("%d", start)
     }
     else {
         for (int adj = 0; adj < currentIndex; adj++) {
@@ -40,6 +41,7 @@ void allPaths(int start, int des, int x, int m[x][x], int visited[], int path[],
 
 int main(void) {
     
+<<<<<<< Updated upstream
     int i, j, k;        // Integers declared for loops
     int numCities;      // Will store the total number of cities
     int m[10][10];      // Max size of input graph is 10
@@ -96,5 +98,43 @@ int main(void) {
         printf("\n");
     }
     
+=======
+    // Valid input check:
+    // distance array contains indices <= MAX_NODES
+    // all distance values within the array are <= MAX_DISTANCE
+        // Diagonal of distance array = 0 (m[0][0], m[1][1], m[2][2], etc. all == 0)
+    // distance array is mirrored alon diagonal
+        // m[0][1] == m [1][0], m[2][0] == m [0][2], m[2][1] == m [1][2]
+    int m[2][2] = {0, 1, 1, 0};
+    num = m.length();
+//    int visited[] = {0, 0};
+//    int path[MAX_LINE];
+    // Check which nodes start is attached to
+    int[m.length()] adjNodes = adjacent(start, num, m)
+    for (int i; i < num; i++) {
+        int path[MAX_LINE];
+        int visited[] = {0, 0};
+        if (adjNodes[i] == 0) {
+            break;
+        }
+        allPaths(start, adjNodes[i], num, m, visited, path, 0))
+    }
+//    allPaths(1, 1, 2, m, visited, path, 0);
+>>>>>>> Stashed changes
     
+}
+
+bool * adjacent(int start, int size, int m[size][size]) {
+    //bool array for adjacent nodes. True
+    // allocate memory?
+    int[size] = adjNodes;
+    int count = 0;
+    for (i = 0; i < size; i++) {
+        if (m[i][start] > 0) {
+            adjNodes[count] = i;
+            count++;
+        }
+    }
+    return adjNodes;
+        
 }
