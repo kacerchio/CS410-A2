@@ -11,6 +11,7 @@
 #include <unistd.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <sys/stat.h>
 
 #define MAX_ROW 12
 #define SHM_SIZE 1024
