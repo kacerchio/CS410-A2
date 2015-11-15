@@ -13,9 +13,10 @@ tsp_p: tsp_p.c
 	gcc tsp_p.c -o tsp_p
 
 tspsort: tspsort.c
-	gcc tspsort -o tspsort
+	gcc tspsort.c -o tspsort
 
 clean: 
 	rm -rf myshell
 	rm -rf tsp_p
 	rm -rf tspsort
+	rm -rf paths.txt

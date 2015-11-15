@@ -17,6 +17,7 @@
 #define SHM_SIZE 1024
 
 /* Returns array of adjacent nodes to given city */
+
 int * adjacent(int start, int size, int m[size][size]) {
     
     int *adjNodes = malloc(sizeof(int) * (size - 1));       // Allocate memory for adjNodes
@@ -33,16 +34,17 @@ int * adjacent(int start, int size, int m[size][size]) {
         }
     }
     /*
-    int *ptr = adjNodes;
-    printf("\nadjNodes = { ");
-    for (int j = 0; j < count; j++) {
-        printf("%d,", ptr[j]);
-    }
-    printf("}\n");*/
+     int *ptr = adjNodes;
+     printf("\nadjNodes = { ");
+     for (int j = 0; j < count; j++) {
+     printf("%d,", ptr[j]);
+     }
+     printf("}\n");*/
     return adjNodes;
 }
 
 /* Calculates total distance of a given traveled path */
+
 int calcDistance(int path[], int currentIndex, int size, int m[size][size]) {
     int sumDist = m[path[0]][path[1]];
     int i;
@@ -55,21 +57,34 @@ int calcDistance(int path[], int currentIndex, int size, int m[size][size]) {
 }
 
 /* Calculates all valid paths given a starting node and its adjacent nodes */
-void allPaths(int start, int des, int size, int m[size][size], int visited[], int path[], int currentIndex) {
+
+void allPaths(int start, int des, int size, int m[size][size], int visited[], int path[], int currentIndex, FILE* f) {
     
     visited[start] = 1;
     path[currentIndex] = start;
     currentIndex++;
     int i;
+       
+    if (f == NULL)
+    {
+        printf("Error opening file!\n");
+        exit(1);
+    }
     
     if (start == des) {
         for (i = 0; i < currentIndex; i++) {
+            fprintf(f, "%d ", path[i]);
             fprintf(stdout, "%d ", path[i]);
         }
         fprintf(stdout, "%d", path[0]);
+        fprintf(f, "%d", path[0]);
+        
         int sumDist = calcDistance(path, currentIndex, size, m);
+        
         fprintf(stdout, "\t --> total distance: %d", sumDist);
+        fprintf(f, "\t --> total distance: %d", sumDist);
         fprintf(stdout, "\n");
+        fprintf(f, "\n");
     }
     else {
         int adjLength = 0;
@@ -80,10 +95,10 @@ void allPaths(int start, int des, int size, int m[size][size], int visited[], in
                 adjLength++;
             }
         }
-
+        
         for (i = 0; i < adjLength; i++) {
             if (visited[adjNodes[i]] != 1) {
-                allPaths(adjNodes[i], des, size, m, visited, path, currentIndex);
+                allPaths(adjNodes[i], des, size, m, visited, path, currentIndex, f);
                 continue;
             }
         }
@@ -97,6 +112,9 @@ int main(void) {
     
     int i, j, k;        // Integers declared for loops
     int numCities;      // Will store the total number of cities
+    
+    // file.txt will be appendable. If it does not exist, then it will be created
+    FILE *f = fopen("paths.txt", "w");
     
     // Retrieve the number of desired cities using standard input
     fprintf(stdout, "Enter the total number of cities (i.e. nodes): \n");
@@ -155,22 +173,9 @@ int main(void) {
     fprintf(stdout, "\n");
     fprintf(stdout, "All possible paths for this input graph: \n");
     
-    //int status = 0;
     int city, des;
-    //int shmid;
-    //char *shm;
     
     // For each city, fork a new child process and calculate all the valid paths to the other cities
-    
-    for (city = 0; city < numCities; city++) {
-        for (des = 0; des < numCities; des++) {
-            int path[MAX_ROW];
-            int visited[numCities];
-            if (des != city) {
-                allPaths(city, des, numCities, m, visited, path, 0);
-            }
-        }
-    }
     
     for (city = 0; city < numCities; city++) {
         
@@ -192,7 +197,7 @@ int main(void) {
                 int path[MAX_ROW];
                 int visited[numCities];
                 if (des != city) {
-                    allPaths(city, des, numCities, m, visited, path, 0);
+                    allPaths(city, des, numCities, m, visited, path, 0, f);
                 }
             }
             shmdt(result);
@@ -202,7 +207,7 @@ int main(void) {
             wait(&status);
         }
     }
-
+    
     return 0;
 }
 
