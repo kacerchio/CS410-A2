@@ -16,6 +16,7 @@ int main(int argc, const char * argv[]) {
     // Arbitrary number of lines for allocation
     // Memory reallocation is implemented, however, program cannot sort list of paths
     // of size greater than lines_allocated.
+
     int lines_allocated = 150;
     int max_line_len = 100;
     int allocfactor = 1;
@@ -26,6 +27,7 @@ int main(int argc, const char * argv[]) {
     
     // Error checking for memory allocation
     if (paths == NULL) {
+        
         fprintf(stderr,"Out of memory (1).\n");
         exit(1);
     }
@@ -42,6 +44,7 @@ int main(int argc, const char * argv[]) {
     
     // Error checking for opening file
     if (fp == NULL) {
+
         perror("Error opening file.\n");
         exit(2);
     }
@@ -52,6 +55,7 @@ int main(int argc, const char * argv[]) {
         
         // Checking if 'i' has exceeded maximum lines allocated for the paths
         // Checking if reallocation of memory is required
+
         if (i >= lines_allocated) {
             int new_size;
             
@@ -65,15 +69,16 @@ int main(int argc, const char * argv[]) {
             // Error checking for memory allocation
             if (paths == NULL) {
                 fprintf(stderr,"Out of memory.\n");
+
                 exit(3);
             }
             lines_allocated = new_size;
         }
         
-        
         paths[i] = malloc(max_line_len);                     // Allocating space for the next line
         
         if (paths[i] == NULL) {                              // Error checking for memory allocation
+
             fprintf(stderr,"Out of memory (3).\n");
             exit(4);
         }
@@ -95,6 +100,7 @@ int main(int argc, const char * argv[]) {
         char *p = strrchr(paths[i], ' ');        // This isolates the final value in the string, the total dist.
         
         if (p && *(p + 1)) {                     // Once isolated, the total dist is stored in the totaldist array.
+
             totaldists[i] = atoi(p + 1);
         }
     }
@@ -105,6 +111,7 @@ int main(int argc, const char * argv[]) {
     printf("Examining paths:\n");
     
     for(j = 0; j < i; j++) {                     // Printing paths read in from the file.
+
         printf("%s\n", paths[j]);
     }
     printf("\n");
@@ -122,6 +129,7 @@ int main(int argc, const char * argv[]) {
     
     // Freeing memory
     for (; i>=0; i--) {
+        
         free(paths[i]);
     }
     free(paths);
@@ -134,12 +142,12 @@ int main(int argc, const char * argv[]) {
 
 void quicksort(int size, int x[size], int first,int last) {
     int pivot,j,temp,i;
-    
+
     if(first<last){
         pivot=first;
         i=first;
         j=last;
-        
+
         while(i<j){
             while(x[i]<=x[pivot]&&i<last)
                 i++;
@@ -157,7 +165,6 @@ void quicksort(int size, int x[size], int first,int last) {
         x[j]=temp;
         quicksort(size, x, first, j-1);
         quicksort(size, x, j+1, last);
-        
     }
 }
 

@@ -71,6 +71,14 @@ void allPaths(int start, int des, int size, int m[size][size], int visited[], in
         exit(1);
     }
     
+
+    
+    if (f == NULL)
+    {
+        printf("Error opening file!\n");
+        exit(1);
+    }
+    
     if (start == des) {
         for (i = 0; i < currentIndex; i++) {
             fprintf(f, "%d ", path[i]);
@@ -114,6 +122,7 @@ int main(void) {
     int numCities;      // Will store the total number of cities
     
     // file.txt will be appendable. If it does not exist, then it will be created
+
     FILE *f = fopen("paths.txt", "w");
     
     // Retrieve the number of desired cities using standard input
@@ -176,6 +185,17 @@ int main(void) {
     int city, des;
     
     // For each city, fork a new child process and calculate all the valid paths to the other cities
+    
+    for (city = 0; city < numCities; city++) {
+
+        for (des = 0; des < numCities; des++) {
+            int path[MAX_ROW];
+            int visited[numCities];
+            if (des != city) {
+                allPaths(city, des, numCities, m, visited, path, 0, f);
+            }
+        }
+    }
     
     for (city = 0; city < numCities; city++) {
         
